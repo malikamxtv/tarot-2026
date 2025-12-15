@@ -260,16 +260,28 @@ const tarotCards = [
 
 const container = document.getElementById("cardContainer");
 
+function shuffleArray(array) {
+    // Simple Fisher-Yates shuffle
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+    
 function createCards() {
     container.innerHTML = "";
 
-    tarotCards.forEach(cardData => {
+    // Shuffle the cards first
+    const shuffledCards = shuffleArray([...tarotCards]); // copy and shuffle
+
+    shuffledCards.forEach(cardData => {
         const card = document.createElement("div");
         card.className = "card";
 
-        card.addEventListener("click", () => {
+        card.onclick = () => {
             if (document.querySelector(".chosen")) return;
-
             card.style.backgroundImage = `url('${cardData.image}')`;
             card.classList.add("chosen");
 
@@ -281,11 +293,12 @@ function createCards() {
             document.querySelectorAll(".card").forEach(c => {
                 if (c !== card) c.classList.add("disabled");
             });
-        });
+        };
 
         container.appendChild(card);
     });
 }
+
 
 createCards();
 
