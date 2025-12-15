@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Tarot Card for 2026</title>
+
+<style>
+    /* ===== BASIC RESET ===== */
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        text-align: center;
+
+        /* Background image */
+        background-image: url("background.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    /* Dark overlay for readability */
+    .overlay {
+        min-height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 20px;
+    }
+
+    h1 {
+        margin-top: 10px;
+        font-size: 2rem;
+    }
+
+    p {
+        max-width: 500px;
+        margin: 10px auto 20px;
+    }
+
+    /* ===== CARD SCROLL AREA ===== */
+
+    .scroll-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .arrow {
+        font-size: 2rem;
+        cursor: pointer;
+        user-select: none;
+        padding: 10px;
+    }
+
+    .card-container {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding: 20px 10px;
+        scroll-behavior: smooth;
+        max-width: 100%;
+    }
+
+    .card-container::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .card {
+        min-width: 120px;
+        height: 200px;
+        background-image: url("card-back.png");
+        background-size: cover;
+        background-position: center;
+        border-radius: 10px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card.disabled {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    /* ===== RESULT BOX ===== */
+
+    #result {
+        display: none;
+        background: rgba(255, 255, 255, 0.95);
+        color: #222;
+        margin: 30px auto;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 500px;
+    }
+
+    #result h2 {
+        margin-top: 0;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        background: #6b4eff;
+        color: white;
+    }
+
+    button:hover {
+        background: #563de0;
+    }
+
+    /* ===== MOBILE TWEAKS ===== */
+    @media (max-width: 600px) {
+        h1 {
+            font-size: 1.6rem;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+        }
+
+        .card {
+            min-width: 100px;
+            height: 170px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="overlay">
+
+<h1>Your Tarot Card for 2026</h1>
+<p>Scroll through the cards and choose the one that feels right.</p>
+
+<div class="scroll-wrapper">
+    <div class="arrow" id="leftArrow">◀</div>
+    <div class="card-container" id="cardContainer"></div>
+    <div class="arrow" id="rightArrow">▶</div>
+</div>
+
+<div id="result">
+    <h2 id="cardName"></h2>
+    <p id="cardMeaning"></p>
+    <p><strong>2026 Message:</strong> <span id="cardMessage"></span></p>
+    <button onclick="resetReading()">Draw another card</button>
+</div>
+
+</div>
+
+<script>
+/* ===== TAROT CARD DATA (SHORT LIST FOR NOW) ===== */
+/* You can paste your full 78-card list here */
+
+const tarotCards = [
+    /* ===== MAJOR ARCANA ===== */
+
+{ name: "The Fool", image: "images/fool.jpg", meaning: "New beginnings and openness.", message: "2026 invites fresh starts and trust in the journey." },
+{ name: "The Magician", image: "images/magician.jpg", meaning: "Personal power and skill.", message: "2026 supports turning ideas into reality." },
+{ name: "The High Priestess", image: "images/high-priestess.jpg", meaning: "Intuition and inner wisdom.", message: "Trust your instincts throughout 2026." },
+{ name: "The Empress", image: "images/empress.jpg", meaning: "Growth and creativity.", message: "2026 nurtures comfort, creativity, and connection." },
+{ name: "The Emperor", image: "images/emperor.jpg", meaning: "Structure and stability.", message: "Strong foundations bring security in 2026." },
+{ name: "The Hierophant", image: "images/hierophant.jpg", meaning: "Learning and tradition.", message: "Guidance appears through study or mentorship." },
+{ name: "The Lovers", image: "images/lovers.jpg", meaning: "Connection and alignment.", message: "Heart-centered choices shape 2026 positively." },
+{ name: "The Chariot", image: "images/chariot.jpg", meaning: "Determination and progress.", message: "Focused effort moves you forward in 2026." },
+{ name: "Strength", image: "images/strength.jpg", meaning: "Gentle inner strength.", message: "Patience and compassion guide you this year." },
+{ name: "The Hermit", image: "images/hermit.jpg", meaning: "Reflection and insight.", message: "Quiet moments bring clarity in 2026." },
+{ name: "Wheel of Fortune", image: "images/wheel-of-fortune.jpg", meaning: "Cycles and change.", message: "Positive shifts unfold naturally in 2026." },
+{ name: "Justice", image: "images/justice.jpg", meaning: "Balance and fairness.", message: "Clear decisions bring harmony this year." },
+{ name: "The Hanged Man", image: "images/hanged-man.jpg", meaning: "New perspective.", message: "Seeing differently brings peace in 2026." },
+{ name: "Death", image: "images/death.jpg", meaning: "Transformation and renewal.", message: "An ending opens space for something better." },
+{ name: "Temperance", image: "images/temperance.jpg", meaning: "Harmony and moderation.", message: "Balance supports steady growth in 2026." },
+{ name: "The Devil", image: "images/devil.jpg", meaning: "Awareness of patterns.", message: "Understanding habits brings freedom this year." },
+{ name: "The Tower", image: "images/tower.jpg", meaning: "Release and rebuilding.", message: "Clearing space allows stronger foundations." },
+{ name: "The Star", image: "images/star.jpg", meaning: "Hope and healing.", message: "Optimism and renewal return in 2026." },
+{ name: "The Moon", image: "images/moon.jpg", meaning: "Emotional awareness.", message: "Intuition and creativity deepen this year." },
+{ name: "The Sun", image: "images/sun.jpg", meaning: "Joy and success.", message: "2026 brings warmth, confidence, and clarity." },
+{ name: "Judgement", image: "images/judgement.jpg", meaning: "Awakening and clarity.", message: "A meaningful realization shapes your year." },
+{ name: "The World", image: "images/world.jpg", meaning: "Completion and fulfillment.", message: "2026 brings a sense of wholeness and achievement." },
+
+/* ===== CUPS ===== */
+
+{ name: "Ace of Cups", image: "images/ace-cups.jpg", meaning: "Emotional beginnings.", message: "New feelings and openness emerge in 2026." },
+{ name: "Two of Cups", image: "images/two-cups.jpg", meaning: "Mutual connection.", message: "Balanced relationships grow stronger." },
+{ name: "Three of Cups", image: "images/three-cups.jpg", meaning: "Celebration and friendship.", message: "Shared joy and community appear." },
+{ name: "Four of Cups", image: "images/four-cups.jpg", meaning: "Reflection.", message: "A pause brings emotional clarity." },
+{ name: "Five of Cups", image: "images/five-cups.jpg", meaning: "Acceptance and healing.", message: "Perspective restores emotional balance." },
+{ name: "Six of Cups", image: "images/six-cups.jpg", meaning: "Nostalgia and kindness.", message: "Comfort from the past supports growth." },
+{ name: "Seven of Cups", image: "images/seven-cups.jpg", meaning: "Choices and imagination.", message: "Clarity emerges from many options." },
+{ name: "Eight of Cups", image: "images/eight-cups.jpg", meaning: "Seeking deeper meaning.", message: "Moving toward emotional fulfillment." },
+{ name: "Nine of Cups", image: "images/nine-cups.jpg", meaning: "Contentment.", message: "Personal satisfaction and joy." },
+{ name: "Ten of Cups", image: "images/ten-cups.jpg", meaning: "Emotional harmony.", message: "Peace and happiness surround you." },
+{ name: "Page of Cups", image: "images/page-cups.jpg", meaning: "Emotional curiosity.", message: "Gentle emotional exploration." },
+{ name: "Knight of Cups", image: "images/knight-cups.jpg", meaning: "Inspired action.", message: "Following your heart brings progress." },
+{ name: "Queen of Cups", image: "images/queen-cups.jpg", meaning: "Compassion.", message: "Emotional wisdom guides decisions." },
+{ name: "King of Cups", image: "images/king-cups.jpg", meaning: "Emotional balance.", message: "Calm leadership and understanding." },
+
+/* ===== PENTACLES ===== */
+
+{ name: "Ace of Pentacles", image: "images/ace-pentacles.jpg", meaning: "New opportunity.", message: "A practical beginning forms in 2026." },
+{ name: "Two of Pentacles", image: "images/two-pentacles.jpg", meaning: "Balance.", message: "You manage priorities smoothly." },
+{ name: "Three of Pentacles", image: "images/three-pentacles.jpg", meaning: "Teamwork.", message: "Collaboration brings success." },
+{ name: "Four of Pentacles", image: "images/four-pentacles.jpg", meaning: "Stability.", message: "Security and grounding increase." },
+{ name: "Five of Pentacles", image: "images/five-pentacles.jpg", meaning: "Support.", message: "Help appears when needed." },
+{ name: "Six of Pentacles", image: "images/six-pentacles.jpg", meaning: "Giving and receiving.", message: "Balanced generosity flows." },
+{ name: "Seven of Pentacles", image: "images/seven-pentacles.jpg", meaning: "Patience.", message: "Progress grows steadily." },
+{ name: "Eight of Pentacles", image: "images/eight-pentacles.jpg", meaning: "Skill-building.", message: "Focus brings improvement." },
+{ name: "Nine of Pentacles", image: "images/nine-pentacles.jpg", meaning: "Independence.", message: "Self-sufficiency and comfort." },
+{ name: "Ten of Pentacles", image: "images/ten-pentacles.jpg", meaning: "Long-term security.", message: "Stability and abundance strengthen." },
+{ name: "Page of Pentacles", image: "images/page-pentacles.jpg", meaning: "Learning.", message: "Curiosity opens new paths." },
+{ name: "Knight of Pentacles", image: "images/knight-pentacles.jpg", meaning: "Consistency.", message: "Reliable progress continues." },
+{ name: "Queen of Pentacles", image: "images/queen-pentacles.jpg", meaning: "Practical care.", message: "Comfort and support surround you." },
+{ name: "King of Pentacles", image: "images/king-pentacles.jpg", meaning: "Material success.", message: "Leadership brings stability." },
+
+/* ===== WANDS ===== */
+
+{ name: "Ace of Wands", image: "images/ace-wands.jpg", meaning: "Inspiration.", message: "A creative spark ignites." },
+{ name: "Two of Wands", image: "images/two-wands.jpg", meaning: "Planning.", message: "Clear direction forms." },
+{ name: "Three of Wands", image: "images/three-wands.jpg", meaning: "Expansion.", message: "Opportunities widen." },
+{ name: "Four of Wands", image: "images/four-wands.jpg", meaning: "Stability.", message: "Celebration and grounding." },
+{ name: "Five of Wands", image: "images/five-wands.jpg", meaning: "Challenge.", message: "Growth through engagement." },
+{ name: "Six of Wands", image: "images/six-wands.jpg", meaning: "Recognition.", message: "Efforts are acknowledged." },
+{ name: "Seven of Wands", image: "images/seven-wands.jpg", meaning: "Confidence.", message: "Standing strong brings success." },
+{ name: "Eight of Wands", image: "images/eight-wands.jpg", meaning: "Momentum.", message: "Fast-moving progress." },
+{ name: "Nine of Wands", image: "images/nine-wands.jpg", meaning: "Resilience.", message: "Strength through persistence." },
+{ name: "Ten of Wands", image: "images/ten-wands.jpg", meaning: "Completion.", message: "Releasing effort brings relief." },
+{ name: "Page of Wands", image: "images/page-wands.jpg", meaning: "Curiosity.", message: "Exploration leads forward." },
+{ name: "Knight of Wands", image: "images/knight-wands.jpg", meaning: "Bold action.", message: "Passion fuels movement." },
+{ name: "Queen of Wands", image: "images/queen-wands.jpg", meaning: "Confidence.", message: "Creativity shines." },
+{ name: "King of Wands", image: "images/king-wands.jpg", meaning: "Leadership.", message: "Vision guides success." },
+
+/* ===== SWORDS ===== */
+
+{ name: "Ace of Swords", image: "images/ace-swords.jpg", meaning: "Mental clarity.", message: "Truth and insight emerge." },
+{ name: "Two of Swords", image: "images/two-swords.jpg", meaning: "Balanced decision.", message: "Calm choice-making." },
+{ name: "Three of Swords", image: "images/three-swords.jpg", meaning: "Understanding.", message: "Healing through honesty." },
+{ name: "Four of Swords", image: "images/four-swords.jpg", meaning: "Rest.", message: "Mental renewal." },
+{ name: "Five of Swords", image: "images/five-swords.jpg", meaning: "Awareness.", message: "Learning from experience." },
+{ name: "Six of Swords", image: "images/six-swords.jpg", meaning: "Transition.", message: "Moving toward calm." },
+{ name: "Seven of Swords", image: "images/seven-swords.jpg", meaning: "Strategy.", message: "Thoughtful planning helps." },
+{ name: "Eight of Swords", image: "images/eight-swords.jpg", meaning: "Perspective shift.", message: "New thinking brings freedom." },
+{ name: "Nine of Swords", image: "images/nine-swords.jpg", meaning: "Release.", message: "Worries ease with understanding." },
+{ name: "Ten of Swords", image: "images/ten-swords.jpg", meaning: "Closure.", message: "An ending brings relief." },
+{ name: "Page of Swords", image: "images/page-swords.jpg", meaning: "Curiosity.", message: "Learning and communication grow." },
+{ name: "Knight of Swords", image: "images/knight-swords.jpg", meaning: "Focus.", message: "Clear action leads forward." },
+{ name: "Queen of Swords", image: "images/queen-swords.jpg", meaning: "Wisdom.", message: "Honest communication guides you." },
+{ name: "King of Swords", image: "images/king-swords.jpg", meaning: "Authority.", message: "Fairness and clarity prevail." }
+
+];
+
+/* ===== CREATE CARDS ===== */
+
+const container = document.getElementById("cardContainer");
+
+function createCards() {
+    container.innerHTML = "";
+
+    tarotCards.forEach(cardData => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.addEventListener("click", () => {
+            if (document.querySelector(".chosen")) return;
+
+            card.style.backgroundImage = `url('${cardData.image}')`;
+            card.classList.add("chosen");
+
+            document.getElementById("cardName").textContent = cardData.name;
+            document.getElementById("cardMeaning").textContent = cardData.meaning;
+            document.getElementById("cardMessage").textContent = cardData.message;
+            document.getElementById("result").style.display = "block";
+
+            document.querySelectorAll(".card").forEach(c => {
+                if (c !== card) c.classList.add("disabled");
+            });
+        });
+
+        container.appendChild(card);
+    });
+}
+
+createCards();
+
+/* ===== SCROLL ARROWS ===== */
+
+document.getElementById("leftArrow").onclick = () => {
+    container.scrollLeft -= 200;
+};
+
+document.getElementById("rightArrow").onclick = () => {
+    container.scrollLeft += 200;
+};
+
+/* ===== RESET BUTTON ===== */
+
+function resetReading() {
+    document.getElementById("result").style.display = "none";
+    createCards();
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Your Tarot Card for 2026</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        text-align: center;
+        padding: 30px;
+    }
+
+    h1 {
+        margin-bottom: 5px;
+    }
+
+    .card-container {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding: 20px;
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card {
+        min-width: 120px;
+        height: 200px;
+        background-image: url("card-back.png");
+        background-size: cover;
+        background-position: center;
+        border-radius: 10px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    #result {
+        display: none;
+        background: white;
+        margin: 30px auto;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 500px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Your Tarot Card for 2026</h1>
+<p>Scroll through the cards and choose one.</p>
+
+<div class="card-container" id="cardContainer"></div>
+
+<div id="result">
+    <h2 id="cardName"></h2>
+    <p id="cardMeaning"></p>
+    <p><strong>2026 Message:</strong> <span id="cardMessage"></span></p>
+</div>
+
+<script>
+/* ==========================
+   TAROT CARD DATA (78 CARDS)
+   ========================== */
+
+   const tarotCards = [
+
+/* ===== MAJOR ARCANA ===== */
+
+{ name: "The Fool", image: "images/fool.jpg", meaning: "New beginnings and openness.", message: "2026 invites fresh starts and trust in the journey." },
+{ name: "The Magician", image: "images/magician.jpg", meaning: "Personal power and skill.", message: "2026 supports turning ideas into reality." },
+{ name: "The High Priestess", image: "images/high-priestess.jpg", meaning: "Intuition and inner wisdom.", message: "Trust your instincts throughout 2026." },
+{ name: "The Empress", image: "images/empress.jpg", meaning: "Growth and creativity.", message: "2026 nurtures comfort, creativity, and connection." },
+{ name: "The Emperor", image: "images/emperor.jpg", meaning: "Structure and stability.", message: "Strong foundations bring security in 2026." },
+{ name: "The Hierophant", image: "images/hierophant.jpg", meaning: "Learning and tradition.", message: "Guidance appears through study or mentorship." },
+{ name: "The Lovers", image: "images/lovers.jpg", meaning: "Connection and alignment.", message: "Heart-centered choices shape 2026 positively." },
+{ name: "The Chariot", image: "images/chariot.jpg", meaning: "Determination and progress.", message: "Focused effort moves you forward in 2026." },
+{ name: "Strength", image: "images/strength.jpg", meaning: "Gentle inner strength.", message: "Patience and compassion guide you this year." },
+{ name: "The Hermit", image: "images/hermit.jpg", meaning: "Reflection and insight.", message: "Quiet moments bring clarity in 2026." },
+{ name: "Wheel of Fortune", image: "images/wheel-of-fortune.jpg", meaning: "Cycles and change.", message: "Positive shifts unfold naturally in 2026." },
+{ name: "Justice", image: "images/justice.jpg", meaning: "Balance and fairness.", message: "Clear decisions bring harmony this year." },
+{ name: "The Hanged Man", image: "images/hanged-man.jpg", meaning: "New perspective.", message: "Seeing differently brings peace in 2026." },
+{ name: "Death", image: "images/death.jpg", meaning: "Transformation and renewal.", message: "An ending opens space for something better." },
+{ name: "Temperance", image: "images/temperance.jpg", meaning: "Harmony and moderation.", message: "Balance supports steady growth in 2026." },
+{ name: "The Devil", image: "images/devil.jpg", meaning: "Awareness of patterns.", message: "Understanding habits brings freedom this year." },
+{ name: "The Tower", image: "images/tower.jpg", meaning: "Release and rebuilding.", message: "Clearing space allows stronger foundations." },
+{ name: "The Star", image: "images/star.jpg", meaning: "Hope and healing.", message: "Optimism and renewal return in 2026." },
+{ name: "The Moon", image: "images/moon.jpg", meaning: "Emotional awareness.", message: "Intuition and creativity deepen this year." },
+{ name: "The Sun", image: "images/sun.jpg", meaning: "Joy and success.", message: "2026 brings warmth, confidence, and clarity." },
+{ name: "Judgement", image: "images/judgement.jpg", meaning: "Awakening and clarity.", message: "A meaningful realization shapes your year." },
+{ name: "The World", image: "images/world.jpg", meaning: "Completion and fulfillment.", message: "2026 brings a sense of wholeness and achievement." },
+
+/* ===== CUPS ===== */
+
+{ name: "Ace of Cups", image: "images/ace-cups.jpg", meaning: "Emotional beginnings.", message: "New feelings and openness emerge in 2026." },
+{ name: "Two of Cups", image: "images/two-cups.jpg", meaning: "Mutual connection.", message: "Balanced relationships grow stronger." },
+{ name: "Three of Cups", image: "images/three-cups.jpg", meaning: "Celebration and friendship.", message: "Shared joy and community appear." },
+{ name: "Four of Cups", image: "images/four-cups.jpg", meaning: "Reflection.", message: "A pause brings emotional clarity." },
+{ name: "Five of Cups", image: "images/five-cups.jpg", meaning: "Acceptance and healing.", message: "Perspective restores emotional balance." },
+{ name: "Six of Cups", image: "images/six-cups.jpg", meaning: "Nostalgia and kindness.", message: "Comfort from the past supports growth." },
+{ name: "Seven of Cups", image: "images/seven-cups.jpg", meaning: "Choices and imagination.", message: "Clarity emerges from many options." },
+{ name: "Eight of Cups", image: "images/eight-cups.jpg", meaning: "Seeking deeper meaning.", message: "Moving toward emotional fulfillment." },
+{ name: "Nine of Cups", image: "images/nine-cups.jpg", meaning: "Contentment.", message: "Personal satisfaction and joy." },
+{ name: "Ten of Cups", image: "images/ten-cups.jpg", meaning: "Emotional harmony.", message: "Peace and happiness surround you." },
+{ name: "Page of Cups", image: "images/page-cups.jpg", meaning: "Emotional curiosity.", message: "Gentle emotional exploration." },
+{ name: "Knight of Cups", image: "images/knight-cups.jpg", meaning: "Inspired action.", message: "Following your heart brings progress." },
+{ name: "Queen of Cups", image: "images/queen-cups.jpg", meaning: "Compassion.", message: "Emotional wisdom guides decisions." },
+{ name: "King of Cups", image: "images/king-cups.jpg", meaning: "Emotional balance.", message: "Calm leadership and understanding." },
+
+/* ===== PENTACLES ===== */
+
+{ name: "Ace of Pentacles", image: "images/ace-pentacles.jpg", meaning: "New opportunity.", message: "A practical beginning forms in 2026." },
+{ name: "Two of Pentacles", image: "images/two-pentacles.jpg", meaning: "Balance.", message: "You manage priorities smoothly." },
+{ name: "Three of Pentacles", image: "images/three-pentacles.jpg", meaning: "Teamwork.", message: "Collaboration brings success." },
+{ name: "Four of Pentacles", image: "images/four-pentacles.jpg", meaning: "Stability.", message: "Security and grounding increase." },
+{ name: "Five of Pentacles", image: "images/five-pentacles.jpg", meaning: "Support.", message: "Help appears when needed." },
+{ name: "Six of Pentacles", image: "images/six-pentacles.jpg", meaning: "Giving and receiving.", message: "Balanced generosity flows." },
+{ name: "Seven of Pentacles", image: "images/seven-pentacles.jpg", meaning: "Patience.", message: "Progress grows steadily." },
+{ name: "Eight of Pentacles", image: "images/eight-pentacles.jpg", meaning: "Skill-building.", message: "Focus brings improvement." },
+{ name: "Nine of Pentacles", image: "images/nine-pentacles.jpg", meaning: "Independence.", message: "Self-sufficiency and comfort." },
+{ name: "Ten of Pentacles", image: "images/ten-pentacles.jpg", meaning: "Long-term security.", message: "Stability and abundance strengthen." },
+{ name: "Page of Pentacles", image: "images/page-pentacles.jpg", meaning: "Learning.", message: "Curiosity opens new paths." },
+{ name: "Knight of Pentacles", image: "images/knight-pentacles.jpg", meaning: "Consistency.", message: "Reliable progress continues." },
+{ name: "Queen of Pentacles", image: "images/queen-pentacles.jpg", meaning: "Practical care.", message: "Comfort and support surround you." },
+{ name: "King of Pentacles", image: "images/king-pentacles.jpg", meaning: "Material success.", message: "Leadership brings stability." },
+
+/* ===== WANDS ===== */
+
+{ name: "Ace of Wands", image: "images/ace-wands.jpg", meaning: "Inspiration.", message: "A creative spark ignites." },
+{ name: "Two of Wands", image: "images/two-wands.jpg", meaning: "Planning.", message: "Clear direction forms." },
+{ name: "Three of Wands", image: "images/three-wands.jpg", meaning: "Expansion.", message: "Opportunities widen." },
+{ name: "Four of Wands", image: "images/four-wands.jpg", meaning: "Stability.", message: "Celebration and grounding." },
+{ name: "Five of Wands", image: "images/five-wands.jpg", meaning: "Challenge.", message: "Growth through engagement." },
+{ name: "Six of Wands", image: "images/six-wands.jpg", meaning: "Recognition.", message: "Efforts are acknowledged." },
+{ name: "Seven of Wands", image: "images/seven-wands.jpg", meaning: "Confidence.", message: "Standing strong brings success." },
+{ name: "Eight of Wands", image: "images/eight-wands.jpg", meaning: "Momentum.", message: "Fast-moving progress." },
+{ name: "Nine of Wands", image: "images/nine-wands.jpg", meaning: "Resilience.", message: "Strength through persistence." },
+{ name: "Ten of Wands", image: "images/ten-wands.jpg", meaning: "Completion.", message: "Releasing effort brings relief." },
+{ name: "Page of Wands", image: "images/page-wands.jpg", meaning: "Curiosity.", message: "Exploration leads forward." },
+{ name: "Knight of Wands", image: "images/knight-wands.jpg", meaning: "Bold action.", message: "Passion fuels movement." },
+{ name: "Queen of Wands", image: "images/queen-wands.jpg", meaning: "Confidence.", message: "Creativity shines." },
+{ name: "King of Wands", image: "images/king-wands.jpg", meaning: "Leadership.", message: "Vision guides success." },
+
+/* ===== SWORDS ===== */
+
+{ name: "Ace of Swords", image: "images/ace-swords.jpg", meaning: "Mental clarity.", message: "Truth and insight emerge." },
+{ name: "Two of Swords", image: "images/two-swords.jpg", meaning: "Balanced decision.", message: "Calm choice-making." },
+{ name: "Three of Swords", image: "images/three-swords.jpg", meaning: "Understanding.", message: "Healing through honesty." },
+{ name: "Four of Swords", image: "images/four-swords.jpg", meaning: "Rest.", message: "Mental renewal." },
+{ name: "Five of Swords", image: "images/five-swords.jpg", meaning: "Awareness.", message: "Learning from experience." },
+{ name: "Six of Swords", image: "images/six-swords.jpg", meaning: "Transition.", message: "Moving toward calm." },
+{ name: "Seven of Swords", image: "images/seven-swords.jpg", meaning: "Strategy.", message: "Thoughtful planning helps." },
+{ name: "Eight of Swords", image: "images/eight-swords.jpg", meaning: "Perspective shift.", message: "New thinking brings freedom." },
+{ name: "Nine of Swords", image: "images/nine-swords.jpg", meaning: "Release.", message: "Worries ease with understanding." },
+{ name: "Ten of Swords", image: "images/ten-swords.jpg", meaning: "Closure.", message: "An ending brings relief." },
+{ name: "Page of Swords", image: "images/page-swords.jpg", meaning: "Curiosity.", message: "Learning and communication grow." },
+{ name: "Knight of Swords", image: "images/knight-swords.jpg", meaning: "Focus.", message: "Clear action leads forward." },
+{ name: "Queen of Swords", image: "images/queen-swords.jpg", meaning: "Wisdom.", message: "Honest communication guides you." },
+{ name: "King of Swords", image: "images/king-swords.jpg", meaning: "Authority.", message: "Fairness and clarity prevail." }
+
+];
+
+
+/* ==========================
+   CREATE CARD ELEMENTS
+   ========================== */
+
+const container = document.getElementById("cardContainer");
+
+tarotCards.forEach(cardData => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.addEventListener("click", () => {
+
+        // Prevent multiple selections
+        if (document.querySelector(".chosen")) return;
+
+        // Reveal selected card
+        card.style.backgroundImage = `url('${cardData.image}')`;
+        card.classList.add("chosen");
+
+        // Display text result
+        document.getElementById("cardName").textContent = cardData.name;
+        document.getElementById("cardMeaning").textContent = cardData.meaning;
+        document.getElementById("cardMessage").textContent = cardData.message;
+        document.getElementById("result").style.display = "block";
+
+        // Fade other cards
+        document.querySelectorAll(".card").forEach(c => {
+            if (c !== card) c.classList.add("disabled");
+        });
+    });
+
+    container.appendChild(card);
+});
+</script>
+
+</body>
+</html> -->
