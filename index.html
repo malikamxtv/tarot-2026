@@ -6,140 +6,129 @@
 <title>Your Tarot Card for 2026</title>
 
 <style>
-    /* ===== BASIC RESET ===== */
-    * {
-        box-sizing: border-box;
-    }
+* { box-sizing: border-box; }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        color: #fff;
-        text-align: center;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    text-align: center;
+    background-image: url("background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
 
-        /* Background image */
-        background-image: url("background.jpg");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
+.overlay {
+    min-height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+}
 
-    /* Dark overlay for readability */
-    .overlay {
-        min-height: 100vh;
-        background: rgba(0, 0, 0, 0.6);
-        padding: 20px;
-    }
+h1 {
+    margin-top: 10px;
+    font-size: 2rem;
+}
+
+p {
+    max-width: 500px;
+    margin: 10px auto 20px;
+}
+
+.scroll-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.arrow {
+    font-size: 2rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px;
+}
+
+.card-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 20px 10px;
+    scroll-behavior: smooth;
+}
+
+.card {
+    min-width: 120px;
+    height: 200px;
+    background-image: url("card-back.png");
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+#result {
+    display: none;
+    background: rgba(255, 255, 255, 0.95);
+    color: #222;
+    margin: 30px auto;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #6b4eff;
+    color: white;
+}
+
+/* 📱 MOBILE FIX */
+@media (max-width: 600px) {
 
     h1 {
-        margin-top: 10px;
-        font-size: 2rem;
-    }
-
-    p {
-        max-width: 500px;
-        margin: 10px auto 20px;
-    }
-
-    /* ===== CARD SCROLL AREA ===== */
-
-    .scroll-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        max-width: 100%;
-        margin: 0 auto;
+        font-size: 1.6rem;
     }
 
     .arrow {
-        font-size: 2rem;
-        cursor: pointer;
-        user-select: none;
-        padding: 10px;
+        font-size: 1.8rem;
+    }
+
+    .scroll-wrapper {
+        justify-content: center;
     }
 
     .card-container {
-        display: flex;
-        gap: 15px;
-        overflow-x: auto;
-        padding: 20px 10px;
-        scroll-behavior: smooth;
-        max-width: 100%;
-    }
-
-    .card-container::-webkit-scrollbar {
-        height: 6px;
+        width: 80vw;
+        margin: 0 auto;
+        padding: 20px;
     }
 
     .card {
-        min-width: 120px;
-        height: 200px;
-        background-image: url("card-back.png");
-        background-size: cover;
-        background-position: center;
-        border-radius: 10px;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: transform 0.2s, opacity 0.2s;
+        min-width: 140px;
+        height: 240px;
     }
-
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .card.disabled {
-        opacity: 0.3;
-        pointer-events: none;
-    }
-
-    /* ===== RESULT BOX ===== */
-
-    #result {
-        display: none;
-        background: rgba(255, 255, 255, 0.95);
-        color: #222;
-        margin: 30px auto;
-        padding: 20px;
-        border-radius: 12px;
-        max-width: 500px;
-    }
-
-    #result h2 {
-        margin-top: 0;
-    }
-
-    button {
-        margin-top: 20px;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 25px;
-        font-size: 1rem;
-        cursor: pointer;
-        background: #6b4eff;
-        color: white;
-    }
-
-    button:hover {
-        background: #563de0;
-    }
-
-    /* ===== MOBILE TWEAKS ===== */
-    @media (max-width: 600px) {
-        h1 {
-            font-size: 1.6rem;
-        }
-
-        .arrow {
-            font-size: 1.5rem;
-        }
-
-        .card {
-            min-width: 100px;
-            height: 170px;
-        }
-    }
+}
 </style>
 </head>
+    
 
 <body>
 
